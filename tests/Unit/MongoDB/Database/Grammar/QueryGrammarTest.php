@@ -177,6 +177,16 @@ class QueryGrammarTest extends TestCase
         $this->assertEquals('Bart Mendez', $collection->firstname . ' ' . $collection->lastname);
     }
 
+
+    /**
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_construct_leftjoin()
+    {
+        //$collection = $this->grammar->leftJoin('');
+    }
+
     /**
      * @test
      * @group unit_positive
@@ -240,4 +250,5 @@ class QueryGrammarTest extends TestCase
                                 ]);
         $this->assertTrue($result);
     }
+
 }

@@ -11,6 +11,7 @@
 
 namespace Nucleus\Databases\Grammar;
 
+use Nucleus\Databases\Grammar\JoinQuery;
 use Nucleus\Databases\Grammar\Options\Like;
 use Nucleus\Databases\Support\ConnectedClientTrait;
 use Nucleus\Databases\Grammar\Options\QueryOptions;
@@ -19,7 +20,7 @@ use Nucleus\Exceptions\Database\Grammar\QueryGrammarException;
 class QueryGrammar
 {
 
-    use ConnectedClientTrait, QueryOptions;
+    use ConnectedClientTrait, QueryOptions, JoinQuery;
 
     /**
      * Stack name for whereNotEqual query
@@ -122,12 +123,26 @@ class QueryGrammar
      * @param string $collection Collection name where the query will run
      * 
      */
-    public function __construct(string $collection)
+    public function __construct(string $collection = null)
     {
         $this->collection = $collection;
 
         $this->splStackWhere = new \SplStack();
         $this->splQueryOptions = new \SplStack();
+    }
+
+    /**
+     * Set collection
+     *
+     * @param string $collection
+     * 
+     * @return $this
+     */
+    public function setCollection(string $collection)
+    {
+        $this->collection = $collection;
+
+        return $this;
     }
 
     /**
@@ -139,6 +154,7 @@ class QueryGrammar
      */
     public function where(...$args)
     {
+        
         return $this->pushQueryToTheirStack($args);
     }
 
@@ -177,9 +193,9 @@ class QueryGrammar
      *
      * @param &$args
      * 
-     * @return void
+     * @return array
      */
-    private function redefineArgs(&$args)
+    public function redefineArgs(&$args)
     {
         $args = array_filter($args);
 
@@ -191,6 +207,8 @@ class QueryGrammar
             $args[] = null;
             $args[] = null;
         }
+
+        return $args;
     }
 
     /**
@@ -506,9 +524,18 @@ class QueryGrammar
 
     }
 
-    public function print_where()
+    /**
+     * Handles dynamic calls
+     *
+     * @param string $method
+     * @param array $arguments
+     * 
+     * @return void
+     */
+    public function __call($method, $arguments)
     {
-        echo "<pre>";
-        print_r($this->queryStack);exit;
+        if (!method_exists($this, $method)) {
+            throw new \BadMethodCallException(sprintf("Method %s() does not exist.", $method));
+        }
     }
 }

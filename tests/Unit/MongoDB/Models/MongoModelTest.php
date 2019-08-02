@@ -17,60 +17,55 @@ class MongoModelTest extends TestCase
      * @test
      * @group unit_positive
      */
-    public function it_should_insert_single_data_to_mongodb()
-    {
-        $sample_model = new SampleModel();
-        
-        $t = $sample_model->insertOne([
-            'firstname' => 'Jane',
-            'lastname'  => 'Doe'
-        ]);
-        
-        $this->assertInstanceOf(SampleModel::class, $t);
-    }
-
-    /**
-     * @test
-     * @group unit_positive
-     */
-    public function it_should_insert_many_record()
-    {
-        $sample_model = new SampleModel();
-        
-        $t = $sample_model->insertMany([
-            [
-                'firstname' => 'sarah Jane',
-                'lastname'  => 'Doe'
-            ],
-            [
-                'firstname' => 'John',
-                'lastname'  => 'Doe'
-            ]
-        ]);
-       
-        $this->assertObjectHasAttribute('_id', $t->get()[0]);
-        $this->assertObjectHasAttribute('firstname', $t->get()[0]);
-        $this->assertObjectHasAttribute('lastname', $t->get()[0]);
-        $this->assertInstanceOf(SampleModel::class, $t);
-    }
-
-    /**
-     * @test
-     * @group unit_positive
-     */
     public function it_should_find_one_record()
     {
         $sample_model = new SampleModel();
-        $this->assertInstanceOf(SampleModel::class, $sample_model->find('5d31af4abd695506fd3d1752'));
+
+        $class = $sample_model->where('firstname', 'Jeff')
+                              ->first();
+        $this->assertInstanceOf(\MongoDB\Model\BSONDocument::class, $class);
+        
     }
 
     /**
-     * test
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_also_use_static_calls()
+    {
+        $result = SampleModel::where('firstname', 'Jeff')
+                             ->first();
+
+        $this->assertInstanceOf(\MongoDB\Model\BSONDocument::class, $result);
+        $this->assertEquals('Jeff', $result->firstname);
+
+    }
+
+    /**
+     * @test
+     * @group unit_positive
      */
     public function it_should_chain_where_query()
     {
         $sample_model = new SampleModel();
-        $sample_model->where('id', new ObjectId('5d31af4abd695506fd3d1752'));
+        $collections = $sample_model->where('_id', new ObjectId('5d43c69abd9cdf022c6e9d22'))
+                                    ->where('lastname', 'Claud')
+                                    ->get();
+        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $collections);
+    }
+
+    /**
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_throw_when_calling_non_existing_method_on_the_model()
+    {
+        $this->expectException(\BadMethodCallException::class);
+
+        $sample_model = new SampleModel();
+        $collections = $sample_model->where('_id', new ObjectId('5d43c69abd9cdf022c6e9d22'))
+                                    ->where('lastname', 'Claud')
+                                    ->nonExistingMethod();
     }
 
 }
