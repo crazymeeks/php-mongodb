@@ -176,4 +176,68 @@ class QueryGrammarTest extends TestCase
         $this->assertInstanceOf(\MongoDB\Model\BSONDocument::class, $collection);
         $this->assertEquals('Bart Mendez', $collection->firstname . ' ' . $collection->lastname);
     }
+
+    /**
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_insert_data_to_mongodb()
+    {
+        $data = [
+            'firstname' => 'Jeff',
+            'lastname'  => 'Claud',
+        ];
+
+        $result = $this->grammar->insert($data);
+        
+        $this->assertInstanceOf(\MongoDB\InsertOneResult::class, $result);
+    }
+
+    /**
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_insert_many_data_to_mongodb()
+    {
+        $data = [
+            [
+                'firstname' => 'Franz',
+                'lastname'  => 'Claud',
+            ],
+            [
+                'firstname' => 'Samuel Jace',
+                'lastname'  => 'Claud',
+            ],
+        ];
+
+        $result = $this->grammar->insertBulk($data);
+        
+        $this->assertInstanceOf(\MongoDB\MongoDB\InsertManyResult::class, $result);
+    }
+
+    /**
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_update_data()
+    {
+        $result = $this->grammar->where('firstname', 'Franz')
+                                ->update([
+                                    'lastname' => 'Claud'
+                                ]);
+        $this->assertTrue($result);
+    }
+
+    /**
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_update_many()
+    {
+        $result = $this->grammar->where('firstname', 'Jeff')
+                                ->updateMany([
+                                    'lastname' => 'Claud'
+                                ]);
+        $this->assertTrue($result);
+    }
 }

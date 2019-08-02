@@ -25,4 +25,14 @@ class QueryGrammarException extends NucleusException
     {
         return new static(sprintf("The {%s} order by is unsupported.", $orderby));
     }
+
+    /**
+     * Invalid argument passed to the method of \Nucleus\Databases\Grammar\QueryGrammar::update()
+     *
+     * @return static
+     */
+    public static function updateQueryInvalidArgument()
+    {
+        return new static(sprintf("Invalid parameter passed to \Nucleus\Databases\Grammar\QueryGrammar::update()"));
+    }
 }

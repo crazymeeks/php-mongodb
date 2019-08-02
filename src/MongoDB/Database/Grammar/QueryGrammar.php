@@ -35,6 +35,49 @@ class QueryGrammar
      */
     const STACK_WHERE = 'where';
 
+    /**
+     * Insert transaction
+     * 
+     * @var const
+     */
+    const INSERT_ONE = 'insertOne';
+
+    /**
+     * Insert many transaction
+     * 
+     * @var const
+     */
+    const INSERT_MANY = 'insertMany';
+
+    /**
+     * Update transaction
+     * 
+     * @var const
+     */
+    const UPDATE_ONE = 'updateOne';
+
+    /**
+     * Update many transaction
+     * 
+     * @var const
+     */
+    const UPDATE_MANY = 'updateMany';
+
+    /**
+     * Write concern ACKNOWLEDGE
+     * 
+     * @var const
+     */
+    const ACKNOWLEDGE = 1;
+    
+    /**
+     * Write concern JOURNALED
+     * 
+     * @var const
+     */
+    const JOURNALED = true;
+
+
     const ORDERBY = [
         'asc' => 1,
         'desc' => -1,
@@ -338,7 +381,130 @@ class QueryGrammar
     {
         return $this->get()->first();
     }
+
+    /**
+     * Insert data to database
+     *
+     * @param array $data
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function insert(array $data)
+    {
+        return $this->executeWrite($data, self::INSERT_ONE);
+    }
+
+    /**
+     * Execute write query
+     *
+     * @param array $data
+     * @param string $operation
+     * 
+     * @return mixed
+     */
+    private function executeWrite(array $data, string $operation)
+    {
+        $client = $this->getConnectedClient();
+        return $client->{$this->collection}->{$operation}($data, $this->getWriteConcerns());
+    }
+
+    /**
+     * Get write concerns
+     *
+     * @return array
+     */
+    public function getWriteConcerns()
+    {
+        return [
+            'w' => static::ACKNOWLEDGE,
+            'j' => static::JOURNALED,
+        ];
+    }
+
+    /**
+     * Alias of insert()
+     * 
+     * @param array $data
+     *
+     * @return mixed
+     */
+    public function insertOne(array $data)
+    {
+        return $this->insert($data);
+    }
+
+    /**
+     * Execute write many query
+     *
+     * @return void
+     */
+    public function insertBulk(array $data)
+    {
+        return $this->executeWrite($data, self::INSERT_MANY);
+    }
+
+    /**
+     * Alias of insertBulk
+     *
+     * @param array $data
+     * 
+     * @return void
+     */
+    public function insertMany(array $data)
+    {
+        return $this->insertBulk($data);
+    }
     
+    /**
+     * Execute update query
+     *
+     * @param array $data key-value pair
+     * @param string $operation
+     * 
+     * @return bool
+     */
+    public function update(array $data, string $operation = self::UPDATE_ONE)
+    {
+
+        if (count($data) <= 0) {
+            throw QueryGrammarException::updateQueryInvalidArgument();
+        }
+
+        $args = [
+            '$set' => $data
+        ];
+        
+        return $this->executeUpdate($this->getWhereQueries(), $args, $operation);
+    }
+
+    /**
+     * Execute update many query
+     *
+     * @param array $data
+     * 
+     * @return bool
+     */
+    public function updateMany(array $data)
+    {
+        return $this->update($data, self::UPDATE_MANY);
+    }
+
+    /**
+     * Execute update query
+     *
+     * @param array $where
+     * @param array $data
+     * 
+     * @return bool
+     */
+    private function executeUpdate(array $where, array $data, string $operation): bool
+    {
+        $client = $this->getConnectedClient();
+        $affected = $client->{$this->collection}->{$operation}($where, $data);
+
+        return $affected->getModifiedCount() > 0;
+
+    }
 
     public function print_where()
     {
