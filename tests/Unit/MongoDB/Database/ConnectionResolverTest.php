@@ -5,6 +5,9 @@ namespace Tests\Unit\MongoDB\Database;
 use Tests\TestCase;
 use Nucleus\MongoDB\Database\ConnectionResolver;
 
+/**
+ * @covers \Nucleus\MongoDB\Database\ConnectionResolver
+ */
 class ConnectionResolverTest extends TestCase
 {
 

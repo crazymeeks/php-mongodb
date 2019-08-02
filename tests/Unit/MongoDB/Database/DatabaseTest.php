@@ -6,6 +6,10 @@ use Tests\TestCase;
 use Nucleus\Databases\Database;
 use Nucleus\MongoDB\Database\ConnectionResolver;
 
+/**
+ * @covers \Nucleus\MongoDB\Database\ConnectionResolver
+ * @covers \Nucleus\Databases\Database
+ */
 class DatabaseTest extends TestCase
 {
 

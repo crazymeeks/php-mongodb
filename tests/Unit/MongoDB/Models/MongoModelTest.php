@@ -6,6 +6,9 @@ use Tests\TestCase;
 use MongoDB\BSON\ObjectId;
 use Tests\Unit\MongoDB\Models\SampleModel;
 
+/**
+ * @covers \Tests\Unit\MongoDB\Models\SampleModel
+ */
 class MongoModelTest extends TestCase
 {
 

@@ -11,6 +11,9 @@ use Tests\TestCase;
 use MongoDB\BSON\ObjectId;
 use Nucleus\Databases\Grammar\QueryGrammar;
 
+/**
+ * @covers \Nucleus\Databases\Grammar\QueryGrammar
+ */
 class QueryGrammarTest extends TestCase
 {
 
@@ -32,7 +35,7 @@ class QueryGrammarTest extends TestCase
                       ->where('lastname', 'Doe')
                       ->get();
 
-        $this->assertIsArray($collection);
+        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $collection);
     }
 
     /**
@@ -50,6 +53,7 @@ class QueryGrammarTest extends TestCase
 
     /**
      * @test
+     * @covers \Nucleus\Databases\Grammar\QueryGrammar::whereNotEqual
      * @group unit_positive
      */
     public function it_should_construct_wherenot_query_with_field_value_parameter()
@@ -75,9 +79,49 @@ class QueryGrammarTest extends TestCase
                                         $query->where('lastname', 'Doe');
                                     })
                                      ->get();
-        echo "<pre>";
-        print_r($collections);exit;
+        
+        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $collections);
 
+    }
+
+    /**
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_construct_order_by_query()
+    {
+        $collection = $this->grammar->orderBy('firstname', 'desc')
+                                     ->last();
+        $this->assertEquals('Anthony', $collection->firstname);
+        $this->assertInstanceOf(\MongoDB\Model\BSONDocument::class, $collection);
+    }
+
+    /**
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_construct_limit_query()
+    {
+        $collection = $this->grammar->orderBy('firstname', 'desc')
+                                     ->limit(1)
+                                     ->get();
+        $this->assertEquals(1, $collection->count());
+    }
+
+    /**
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_construct_skip_query()
+    {
+        $collections = $this->grammar->skip(1)
+                                     ->get();
+        
+        $names = [];
+        foreach($collections as $collection){
+            $names[] = $collection->firstname . ' ' . $collection->lastname;
+        }
+        $this->assertTrue((!in_array('Anthony Davis', $names)));
     }
 
 }
