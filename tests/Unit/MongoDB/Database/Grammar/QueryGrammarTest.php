@@ -184,7 +184,7 @@ class QueryGrammarTest extends TestCase
      */
     public function it_should_construct_leftjoin()
     {
-        //$collection = $this->grammar->leftJoin('');
+        $collection = $this->grammar->leftJoin('test_collection', 'sample_collection._id', 'test_collection.sample_model_id');
     }
 
     /**
