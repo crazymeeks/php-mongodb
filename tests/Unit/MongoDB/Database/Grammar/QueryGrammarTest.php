@@ -10,6 +10,7 @@ namespace Tests\Unit\MongoDB\Database\Grammar;
 use Tests\TestCase;
 use MongoDB\BSON\ObjectId;
 use Nucleus\Databases\Grammar\QueryGrammar;
+use Nucleus\Databases\Grammar\Options\Like;
 
 /**
  * @covers \Nucleus\Databases\Grammar\QueryGrammar
@@ -124,4 +125,55 @@ class QueryGrammarTest extends TestCase
         $this->assertTrue((!in_array('Anthony Davis', $names)));
     }
 
+    /**
+     * Construct LIKE query.
+     * 
+     * Equivalent to SQL's "SELECT * FROM table where firstname LIKE '%oe%'"
+     * 
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_construct_like_query()
+    {
+        $collection = $this->grammar->whereLike('firstname', 'th', Like::COMPARE_ANY)
+                                     ->first();
+
+        $this->assertInstanceOf(\MongoDB\Model\BSONDocument::class, $collection);
+        $this->assertEquals('Anthony Davis', $collection->firstname . ' ' . $collection->lastname);
+        
+    }
+
+     /**
+     * Construct LIKE query.
+     * 
+     * Equivalent to SQL's "SELECT * FROM table where firstname LIKE '%oe'"
+     * 
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_construct_like_query_with_end_comparison()
+    {
+        $collection = $this->grammar->whereLike('lastname', 'dez', Like::COMPARE_END)
+                                     ->first();
+
+        $this->assertInstanceOf(\MongoDB\Model\BSONDocument::class, $collection);
+        $this->assertEquals('Bart Mendez', $collection->firstname . ' ' . $collection->lastname);
+    }
+
+    /**
+     * Construct LIKE query.
+     * 
+     * Equivalent to SQL's "SELECT * FROM table where firstname LIKE 'oe%'"
+     * 
+     * @test
+     * @group unit_positive
+     */
+    public function it_should_construct_like_query_with_start_comparison()
+    {
+        $collection = $this->grammar->whereLike('lastname', 'Mend', Like::COMPARE_START)
+                                     ->first();
+
+        $this->assertInstanceOf(\MongoDB\Model\BSONDocument::class, $collection);
+        $this->assertEquals('Bart Mendez', $collection->firstname . ' ' . $collection->lastname);
+    }
 }

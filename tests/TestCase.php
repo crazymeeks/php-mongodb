@@ -21,6 +21,32 @@ abstract class TestCase extends BaseTestCase
                 'password' => 'root'
             ],
         ]);
+
+
+        // Migration data
+        $migration_data = [
+            [
+                'firstname' => 'Anthony',
+                'lastname'  => 'Davis',
+            ],
+            [
+                'firstname' => 'Bart',
+                'lastname'  => 'Mendez',
+            ],
+            [
+                'firstname' => 'Jane',
+                'lastname'  => 'Doe',
+            ],
+            [
+                'firstname' => 'sarah Jane',
+                'lastname'  => 'Doe',
+            ],
+            [
+                'firstname' => 'John',
+                'lastname'  => 'Doe',
+            ],
+        ];
+
     }
 
     public function tearDown(): void

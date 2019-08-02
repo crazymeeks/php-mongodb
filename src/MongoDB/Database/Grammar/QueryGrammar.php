@@ -1,7 +1,17 @@
 <?php
 
+/*
+ * This file is part of the Nucleus package.
+ *
+ * (c) Jefferson Claud <jefferson.claud@nuworks.ph>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Nucleus\Databases\Grammar;
 
+use Nucleus\Databases\Grammar\Options\Like;
 use Nucleus\Databases\Support\ConnectedClientTrait;
 use Nucleus\Databases\Grammar\Options\QueryOptions;
 use Nucleus\Exceptions\Database\Grammar\QueryGrammarException;
@@ -102,8 +112,6 @@ class QueryGrammar
      */
     private function pushQueryToTheirStack(array $args)
     {
-        $args = array_filter($args);
-
         $this->redefineArgs($args);
 
         // check if $field is instanceof \Closure
@@ -130,6 +138,8 @@ class QueryGrammar
      */
     private function redefineArgs(&$args)
     {
+        $args = array_filter($args);
+
         if (count($args) === 2) {
             $args[] = null;
         }
@@ -148,12 +158,9 @@ class QueryGrammar
      * @return $this
      */
     public function whereNotEqual(...$args)
-    {
-        
-        $args = array_filter($args);
-        if (count($args) <= 0) {
-            throw new \InvalidArgumentException();
-        }
+    {   
+
+        $this->requireArgs($args);
 
         if (!$args[0] instanceof \Closure) {
             if (count($args) < 2) {
@@ -167,6 +174,73 @@ class QueryGrammar
         return $this->pushQueryToTheirStack($args);
     }
 
+    /**
+     * Construct whereLike query and push it to stack
+     * 
+     * @param array $args
+     *             array(
+     *                 'fielname', 'search_value', 'like_symbol', 'flag'
+     *             )
+     *
+     * @return $this
+     */
+    public function whereLike(...$args)
+    {
+        $this->requireArgs($args);
+
+        if (!$args[0] instanceof \Closure) {
+            if (count($args) < 2) {
+                throw new \InvalidArgumentException("Arguments passed to " . __METHOD__ . " must at least 2 or instance of \Closure.");
+            }
+            // Set like compare type to any
+            if (count($args) === 2) {
+                $args[] = Like::COMPARE_ANY;
+                $args[] = Like::INSENSITIVE;
+            }
+
+            // Add flag
+            if (count($args) === 3) {
+                $args[] = Like::INSENSITIVE;
+            }
+
+            list($field, $search_value, $like_symbol, $flag) = $args;
+            
+        }
+
+        if ($like_symbol === Like::COMPARE_ANY) {
+            $search_value = new \MongoDB\BSON\Regex("$search_value", $flag);
+        } elseif ($like_symbol === Like::COMPARE_START) {
+            $search_value = new \MongoDB\BSON\Regex("^$search_value", $flag);
+        } else {
+            $search_value = new \MongoDB\BSON\Regex("$search_value$", $flag);
+        }
+
+        $args = [
+            $field,
+            $search_value
+        ];
+        
+        
+        return $this->pushQueryToTheirStack($args);
+
+    }
+
+    /**
+     * Make sure arguments are passed in 
+     * where(), whereNot(), whereLike() query
+     *
+     * @param array &$args
+     * 
+     * @return void
+     */
+    private function requireArgs(array &$args)
+    {
+        $args = array_filter($args);
+
+        if (count($args) <= 0) {
+            throw new \InvalidArgumentException();
+        }
+    }
 
     /**
      * Validate if orderBy() second parameter is either 'asc' or 'desc'
@@ -237,8 +311,6 @@ class QueryGrammar
      */
     public function get()
     {
-        
-        
         $client = $this->getConnectedClient();
         $collection = \Illuminate\Support\Collection::make($client->{$this->collection}->find($this->getWhereQueries(), $this->getQueryOptions())->toArray());
 
@@ -256,6 +328,16 @@ class QueryGrammar
         return $this->get()->last();
     }
 
+
+    /**
+     * Get the first record from document
+     *
+     * @return \MongoDB\Model\BSONDocument
+     */
+    public function first()
+    {
+        return $this->get()->first();
+    }
     
 
     public function print_where()
