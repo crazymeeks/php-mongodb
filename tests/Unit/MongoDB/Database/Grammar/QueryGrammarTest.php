@@ -177,14 +177,16 @@ class QueryGrammarTest extends TestCase
         $this->assertEquals('Bart Mendez', $collection->firstname . ' ' . $collection->lastname);
     }
 
-
     /**
      * @test
      * @group unit_positive
      */
-    public function it_should_construct_leftjoin()
+    public function it_should_construct_join()
     {
-        $collection = $this->grammar->leftJoin('test_collection', 'sample_collection._id', 'test_collection.sample_model_id');
+        $collection = $this->grammar->join('users', 'shopping_carts.user_id')
+                                    ->join('shopping_carts', 'shopping_cart_items.shopping_cart_id')
+                                    ->join('shopping_cart_items.product_id', 'products')
+                                    ->get();
     }
 
     /**

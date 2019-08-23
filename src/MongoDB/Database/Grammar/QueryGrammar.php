@@ -118,6 +118,13 @@ class QueryGrammar
     private $splQueryOptions;
 
     /**
+     * The join query stack
+     *
+     * @var array
+     */
+    private $joinStack = [];
+
+    /**
      * Constructor
      *
      * @param string $collection Collection name where the query will run
@@ -129,6 +136,8 @@ class QueryGrammar
 
         $this->splStackWhere = new \SplStack();
         $this->splQueryOptions = new \SplStack();
+        $this->splJoinStack = [];
+        
     }
 
     /**
@@ -523,6 +532,32 @@ class QueryGrammar
         return $affected->getModifiedCount() > 0;
 
     }
+
+
+    /**
+     * Extract collection and key delimited by dot(.)
+     *
+     * @param string $collection_dot_key
+     * 
+     * @return array
+     */
+    public function extractCollectionAndKey(string $collection_dot_key)
+    {
+        $exploded = explode('.', $collection_dot_key);
+
+        if (count($exploded) === 2) {
+            return $exploded;
+        }
+
+        // if developer didn't define
+        // a key name from collection(i.e users not users._id or users.*)
+        // we assume the key as _id automatically
+        return [
+            $exploded[0],
+            '_id'
+        ];
+    }
+
 
     /**
      * Handles dynamic calls

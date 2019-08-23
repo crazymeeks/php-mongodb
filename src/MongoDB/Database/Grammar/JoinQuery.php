@@ -15,17 +15,99 @@ trait JoinQuery
 {
 
     /**
-     * Construct leftJoin query and push it to the stack
+     * The first collection defined in join
+     *
+     * @var string
+     */
+    protected $join_source_collection = null;
+
+    /**
+     * Construct join query and push it to the stack
      * 
-     * @param string $joined_collection Collection to be joined
-     * @param string $col_one Collection name where $joined_collection will be join. Format 'mycol._id'
-     * @param string $col_two Collection name where $col_one will be compared. Format 'mycol2.my_col_id'
+     * @param string $source_collection Collection where foreign key of $join_collection exist
+     * @param string $join_collection The collection to join
      *
      * @return $this
      */
-    public function leftJoin(string $joined_collection, string $col_one, string $col_two)
+    public function join(string $source_collection, string $join_collection)
     {
+        list($source_collection, $localField) = $this->extractCollectionAndKey($source_collection);
+        
+        list($join_collection, $foreignField) = $this->extractCollectionAndKey($join_collection);
+
+        $source_collection = $this->setJoinSourceCollection($source_collection);
+
+        if ($source_collection) {
+            $localField = "$source_collection.$localField";
+            
+        }
+
+        $lookup = [
+            '$lookup' => [
+                'from' => $join_collection,
+                'foreignField' => $foreignField,
+                'localField'   => "$localField",
+                'as'           => $join_collection
+            ],
+        ];
+        
+
+        $this->splJoinStack[] = $lookup;
+        $this->splJoinStack[] = ['$unwind' => "$$join_collection"];
+         
+        return $this;
 
     }
+    
+    /**
+     * Set join source collection name
+     *
+     * @param string $source_collection
+     * 
+     * @return mixed
+     */
+    private function setJoinSourceCollection(string $source_collection)
+    {
+        
+        if (!$this->join_source_collection) {
+            $this->join_source_collection = $source_collection;
+            return null;
+        }
+        
+        return $source_collection;
+    }
 
+    /**
+     * Get the main collection name set for join query
+     * then use this in aggregate() later
+     *
+     * @return string
+     */
+    private function getJoinSourceCollection()
+    {
+        return $this->join_source_collection;
+    }
+
+    /**
+     * Get constructed join stack.
+     * Always return the latest
+     *
+     * @return array
+     */
+    private function getJoinStack()
+    {
+        return $this->splJoinStack;
+    }
+
+    public function print_join_stack()
+    {
+        
+        $client = $this->getConnectedClient();
+        $result = $client->{$this->getJoinSourceCollection()}->aggregate($this->splJoinStack)->toArray();
+
+        // echo "<pre>";
+        // print_r($result);exit;
+        echo "<pre>";
+        print_r(json_encode($this->getJoinStack()));exit;
+    }
 }
