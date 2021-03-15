@@ -1,0 +1,29 @@
+{
+    "name": "crazymeeks/php-mongodb",
+    "description": "Wrapper for php-mongodb library",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jeff Claud",
+            "email": "jeffclaud17@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "mongodb/mongodb": "1.6.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Crazymeeks\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5.14"
+    }
+}
