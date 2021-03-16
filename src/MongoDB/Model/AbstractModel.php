@@ -103,19 +103,74 @@ abstract class AbstractModel
      */
     public function first()
     {
-        
         $queryBuilder = $this->getQueryBuilder();
 
-        $query = $queryBuilder->get();
+        $query = $queryBuilder->getQueries();
 
-        $database = $this->getDefaultDatabase($this->getMongoClient());
-
-        $collection = $database->{$this->getModelCollection()};
+        $collection = $this->getCollection();
 
         $result = $collection->findOne($query);
             
         return $this->loadAttributeValue($result);
 
+    }
+
+    /**
+     * Get collection
+     *
+     * @return \MongoDB\Collection
+     */
+    private function getCollection(): \MongoDB\Collection
+    {
+
+        $database = $this->getDefaultDatabase($this->getMongoClient());
+
+        $collection = $database->{$this->getModelCollection()};
+
+        return $collection;
+    }
+
+    /**
+     * Get records in MongoDB
+     *
+     * @return array
+     */
+    public function get()
+    {
+        $queryBuilder = $this->getQueryBuilder();
+
+        $query = $queryBuilder->getQueries();
+        $options = $queryBuilder->getQueryOptions();
+        
+        $collection = $this->getCollection();
+
+        $collections = $collection->find($query, $options)->toArray();
+
+        return $this->loadCollections($collections);
+    }
+
+    /**
+     * Load collections
+     *
+     * @param array $collections
+     * 
+     * @return array[]
+     */
+    private function loadCollections(array $collections)
+    {
+        $models = [];
+        foreach($collections as $collection){
+            $attribute_value = [];
+            foreach($collection as $field => $value){
+                $attribute_value[$field] = $value;
+                unset($value);
+            }
+            $models[] = new static($attribute_value);
+            unset($collection);
+        }
+
+        return $models;
+        
     }
 
     /**
@@ -211,6 +266,10 @@ abstract class AbstractModel
             return $builder->{$name}(...$args);
         }
 
+        if (method_exists($this, $name)) {
+            return $this->{$name}($args);
+        }
+
         // Forward calls directly to \MongoDB\Client
         // here, developer my directly use 
         // \MongoDB\Client methods
@@ -226,5 +285,19 @@ abstract class AbstractModel
         $collection = $database->{$this->getModelCollection()};
 
         return $collection->{$name}($param1, $param2, $param3, $param4, $param5);
+    }
+
+    public static function __callStatic($name, $args)
+    {
+        $builder = new Builder(new static());
+
+        if (method_exists($builder, $name)) {
+            return $builder->{$name}(...$args);
+        }
+
+        $me = new static();
+        if (method_exists($me, $name)) {
+            return $me->{$name}($args);
+        }
     }
 }

@@ -106,13 +106,14 @@ class Connection
     public static function __callStatic($name, $arguments)
     {
 
+        if (self::$client) {
+            return self::$client;
+        }
         if ($name === 'setUpConnection') {
             if (!self::$client) {
                 list($uri, $uriOptions, $driverOptions) = $arguments;
                 return new static($uri, $uriOptions, $driverOptions);
             }
-
-            return;
         }
 
         throw new \BadMethodCallException(sprintf("Calling undefined static method %s()", $name));

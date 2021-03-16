@@ -2,11 +2,16 @@
 
 namespace Crazymeeks\MongoDB\Model\QueryBuilder;
 
-use MongoDB\BSON\Regex as MongoRegex;
+
 use Crazymeeks\MongoDB\Model\AbstractModel;
+use Crazymeeks\MongoDB\Model\QueryBuilder\LimitOption;
+use Crazymeeks\MongoDB\Model\QueryBuilder\WhereQueries;
 
 class Builder
 {
+
+
+    use LimitOption, WhereQueries;
 
     const WHERE = 'where';
     const WHERENOT = 'wherenot';
@@ -15,7 +20,11 @@ class Builder
     const WHEREGREATER = 'wheregt';
     const WHEREGTE = 'wheregte';
     const WHERELTE = 'wherelte';
-    const WHERELT = 'wherelt';
+    const WHERELT = 'wherelt';    
+
+    const SORT_ASC = 'asc';
+    const SORT = 'sort';
+    const LIMIT = 'limit';
 
     protected $_conditions = [
         self::WHERE => [],
@@ -25,9 +34,15 @@ class Builder
         self::WHEREGREATER => [],
         self::WHERELTE => [],
         self::WHERELT => [],
+
     ];
 
+    protected $_orWhere = [];
+
+    protected $_options = [];
+
     const OPERATORS = [
+        'or' => '$or',
         'ne' => '$ne',
         'gte' => '$gte',
         'gt' => '$gt',
@@ -49,108 +64,42 @@ class Builder
         $this->_model = $model;
     }
 
+    
+
     /**
-     * Construct a where equal query
-     * 
-     * @param array $args
-     *             [
-     *                   'field',
-     *                   'value'
-     *             ]
+     * Construct sort by
      *
      * @return $this
      */
-    public function whereEq()
+    public function sortBy()
     {
-        
-        list($field, $value) = $this->extractQueryToFieldAndValue(func_get_args());
-        $this->_conditions[self::WHERE][$field] = new MongoRegex(preg_quote($value), 'i');
+        $args = func_get_args();
+        $numericOrdering = false;
+        if (count($args) >= 3) {
+            list($field, $value, $numericOrdering) = $args;
+        } else {
+            list($field, $value) = $this->extractQueryToFieldAndValue(func_get_args());
+        }
+        $options = $this->_options;
+
+        if ($numericOrdering) {
+            // mongodb's sort not properly working with number as string("1000").
+            // to fix that behavior, we need to used collation
+            $options['collation'] = ['locale' => 'en_US', 'numericOrdering' => true];
+        }
+        $options[self::SORT] = [$field => $value === self::SORT_ASC ? 1 : -1];
+        $this->_options = $options;
         return $this;
     }
 
     /**
-     * Construct a where not query
+     * Get query options
      *
-     * @return $this
+     * @return array
      */
-    public function whereNotEq()
+    public function getQueryOptions(): array
     {
-        
-        list($field, $value) = $this->extractQueryToFieldAndValue(func_get_args());
-        $this->_conditions[self::WHERENOT][$field] = [self::OPERATORS['ne'] => $value];
-        return $this;
-    }
-
-    /**
-     * Construct a where in query
-     *
-     * @return $this
-     */
-    public function whereIn()
-    {
-        list($field, $value) = $this->extractQueryToFieldAndValue(func_get_args());
-        $this->_conditions[self::WHEREIN][$field] = [self::OPERATORS['in'] => $value];
-        return $this;
-    }
-
-    /**
-     * Construct where not in query
-     *
-     * @return $this
-     */
-    public function whereNotIn()
-    {
-        list($field, $value) = $this->extractQueryToFieldAndValue(func_get_args());
-        $this->_conditions[self::WHERENOTIN][$field] = [self::OPERATORS['nin'] => $value];
-        return $this;
-    }
-
-    /**
-     * Construct where greater query
-     *
-     * @return $this
-     */
-    public function whereGreater()
-    {
-        list($field, $value) = $this->extractQueryToFieldAndValue(func_get_args());
-        $this->_conditions[self::WHEREGREATER][$field] = [self::OPERATORS['gt'] => $value];
-        return $this;
-    }
-
-    /**
-     * Construct where greater than or equal query
-     *
-     * @return $this
-     */
-    public function whereGreaterOrEq()
-    {
-        list($field, $value) = $this->extractQueryToFieldAndValue(func_get_args());
-        $this->_conditions[self::WHEREGTE][$field] = [self::OPERATORS['gte'] => $value];
-        return $this;
-    }
-
-    /**
-     * Construct where less than or equal query
-     *
-     * @return $this
-     */
-    public function whereLessThanOrEq()
-    {
-        list($field, $value) = $this->extractQueryToFieldAndValue(func_get_args());
-        $this->_conditions[self::WHERELTE][$field] = [self::OPERATORS['lte'] => $value];
-        return $this;
-    }
-
-    /**
-     * Construct where less than query
-     *
-     * @return $this
-     */
-    public function whereLessThan()
-    {
-        list($field, $value) = $this->extractQueryToFieldAndValue(func_get_args());
-        $this->_conditions[self::WHERELT][$field] = [self::OPERATORS['lt'] => $value];
-        return $this;
+        return $this->_options;
     }
 
     /**
@@ -169,7 +118,7 @@ class Builder
      *
      * @return array
      */
-    public function get(): array
+    public function getQueries(): array
     {
         return $this->mergeConditions();
     }
@@ -187,6 +136,25 @@ class Builder
             unset($values);
         }
 
+        // Merge orWhere
+        $orWhere = [];
+        foreach($this->_orWhere as $ors){
+            foreach($ors as $field => $value){
+                $orWhere[] = [
+                    $field => $value
+                ];
+                unset($values);
+            }
+            unset($q);
+        }
+
+        if (count($orWhere) > 0) {
+            $this->_orWhere['$or'] = [];
+            $this->_orWhere['$or'] = $orWhere;
+        }
+        // end orWHere
+
+        $wheres = array_merge($wheres, $this->_orWhere);
         return array_filter($wheres);
     }
 

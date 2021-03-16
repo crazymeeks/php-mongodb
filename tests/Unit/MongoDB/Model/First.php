@@ -13,7 +13,12 @@ trait First
 
         $this->assertSame('John', $result->name);
         $this->assertSame('test@email.com', $result->email);
+    }
 
+    public function testCallWhereQueriesAsStatic()
+    {
+        $result = \Tests\User::whereEq('name', 'john')->first();
+        $this->assertInstanceOf(\Tests\User::class, $result);
     }
 
     public function testAddWhereNotQuery()
