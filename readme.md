@@ -2,19 +2,19 @@
 #
 php-mongodb is a PHP library that wraps `MongoDB\Client` library and provides a clean api for interacting with MongoDB database.
 #
-### #System requirements
+### # System requirements
 * `>=php7.2`
 * `php7.x-mongodb extension`
 * `mongodb php driver`
 
-### #Installation
+### # Installation
 * Install mongodb driver  
    * `apt update && apt upgrade -y`
    * `pecl install mongodb-1.9.0`  
 * Install this library via composer 
   * `composer install crazymeeks/php-mongodb`  
 #
-### #Usage
+### # Usage
 *Connect to MongoDB Database*
 ```php
 use Crazymeeks\MongoDB\Facades\Connection;
@@ -43,7 +43,7 @@ class User extends AbstractModel
     ];
 }
 ```  
-### #Inserting data ##
+### # Inserting data ##
 First approach:
 ```php
 $user = new User([
@@ -70,7 +70,38 @@ echo $user->firstname;
  timestamps fields when performing an insert. If you wish to disable this, just add `protected $timestamps = true;` to your model class.  
  Or error, this will throw `\Exception` or `\Error` when something went wrong.  
 #
-### #Finding or Querying data from collection. ##
+### # Update ###
+*Single*  
+```php
+$user = new User();
+$user->whereEq('firstname', 'John')
+     ->update([
+         'firstname' => 'Jane',
+     ]);
+```  
+*Bulk update*  
+```php
+$user = new User();
+$user->whereEq('firstname', 'John')
+     ->updateMany([
+         'firstname' => 'Jane',
+     ]);
+```  
+### # Delete ###
+*Single*
+```php
+$user = new User();
+$user->whereEq('firstname', 'John')
+     ->delete();
+```  
+*Bulk delete*  
+```php
+$user = new User();
+$user->whereEq('firstname', 'John')
+     ->deleteMany();
+```
+#
+### # Finding or Querying data from collection. ##
 ### Current methods available ###
 
 *__whereEq(string $field, string $value)__* - where equal query and case-insentive.  
@@ -84,7 +115,7 @@ echo $user->firstname;
 *__first()__* - Returns object that extends \Crazymeeks\MongoDB\Model\AbstractModel. You may `count()` result of this function for counter checking.
 *__get()__* - Returns an array object that extends \Crazymeeks\MongoDB\Model\AbstractModel. You may `count()` result of this function for counter checking.  
 #
-### #Query samples ###
+### # Query samples ###
 ```php
 $user = new User();
 $result = $user->whereEq('firstname', 'John')->first();
@@ -93,7 +124,7 @@ if (count($result) > 0) {
     // result: John
 }
 ```  
-### Chaining multiple queries ###
+### # Chaining multiple queries ###
 You may chain multiple queries too.
 ```php
 $user = new User();
@@ -110,7 +141,7 @@ $users = User::whereEq('email', 'john.doe@example.com')
 
 ```  
 #
-### #Laravel integration ###
+### # Laravel integration ###
 Register connection to app service provider.
 ```php
 namespace App\Providers;
