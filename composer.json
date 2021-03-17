@@ -11,6 +11,8 @@
     ],
     "minimum-stability": "dev",
     "require": {
+        "php": ">=7.2",
+        "ext-mongodb": "*",
         "mongodb/mongodb": "1.6.1"
     },
     "autoload": {
