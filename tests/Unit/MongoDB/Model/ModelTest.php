@@ -8,13 +8,23 @@ use Tests\Unit\MongoDB\Model\Sort;
 use Tests\Unit\MongoDB\Model\First;
 use Tests\Unit\MongoDB\Model\Limit;
 use Tests\Unit\MongoDB\Model\OrWhere;
+use Tests\Unit\MongoDB\Model\Insert;
+use Tests\Unit\MongoDB\Model\Update;
+use Tests\Unit\MongoDB\Model\Delete;
 use Crazymeeks\MongoDB\Facades\Connection;
 
 
 class ModelTest extends \Tests\TestCase
 {
 
-    use First, Get, Sort, OrWhere, Limit;
+    use First,
+    Get,
+    Sort,
+    OrWhere,
+    Limit,
+    Insert,
+    Update,
+    Delete;
 
     public function setUp(): void
     {
@@ -49,7 +59,7 @@ class ModelTest extends \Tests\TestCase
                   ->setDefaultDatabase('testing_mytestdb_crzymix')
                   ->connect();
         $user = new User();
-        $user->deleteMany();
+        // $user->deleteMany();
         parent::tearDown();
     }
     

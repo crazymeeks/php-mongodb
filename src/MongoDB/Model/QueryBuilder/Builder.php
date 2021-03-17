@@ -158,11 +158,33 @@ class Builder
         return array_filter($wheres);
     }
 
+    /**
+     * Dehydrate conditions
+     *
+     * @return void
+     */
+    public function dehydrateConditions()
+    {
+        $this->_conditions = [
+            self::WHERE => [],
+            self::WHERENOT => [],
+            self::WHEREIN => [],
+            self::WHERENOTIN => [],
+            self::WHEREGREATER => [],
+            self::WHERELTE => [],
+            self::WHERELT => [],
+    
+        ];
+
+        $this->_orWhere = [];
+        $this->_options = [];
+    }
+
     public function __call($name, $args)
     {
         $this->_model->setQueryBuilder($this);
         if (method_exists($this->_model, $name)) {
-            return $this->_model->{$name}();
+            return $this->_model->{$name}(...$args);
         }
     }
 }

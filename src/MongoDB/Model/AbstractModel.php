@@ -9,12 +9,23 @@ use Crazymeeks\MongoDB\Model\QueryBuilder\Builder;
 abstract class AbstractModel
 {
 
+    const ATT_CREATED_AT = 'created_at';
+    const ATT_UPDATED_AT = 'updated_at';
+
     /**
      * Fillable properties of the model
      *
      * @var array
      */
     protected $fillable = [];
+
+    /**
+     * Auto insert/update 'created_at' and 'updated_at'
+     * field on the model
+     *
+     * @var boolean
+     */
+    protected $timestamps = true;
 
     /**
      * Model attributes
@@ -32,7 +43,7 @@ abstract class AbstractModel
     /**
      * @var \Crazymeeks\MongoDB\Model\QueryBuilder\Builder
      */
-    protected $_queryBuilder;
+    protected $_queryBuilder = null;
 
     protected function getFillable()
     {
@@ -149,6 +160,187 @@ abstract class AbstractModel
         return $this->loadCollections($collections);
     }
 
+
+    protected function getTimestamps()
+    {
+        return [
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+    }
+
+    /**
+     * Indicate whether the fields 'created_at' and 'updated_at'
+     * are automatically inserted/updated on the model
+     *
+     * @return boolean
+     */
+    private function isTimestamps()
+    {
+        return $this->timestamps;
+    }
+
+    /**
+     * Save data
+     *
+     * @return $this
+     * 
+     * @throws \Exception|\Error
+     */
+    public function save()
+    {
+
+        $attributes = $this->getAttributes();
+        if (count($attributes) === 0) {
+            throw new \Exception("Error. Data not defined.");
+        }
+
+        if ($this->isTimestamps()) {
+
+            $timestamps = $this->getTimestamps();
+
+            if (!isset($attributes[self::ATT_CREATED_AT])) {
+                $attributes[self::ATT_CREATED_AT] = $timestamps[self::ATT_CREATED_AT];
+            }
+
+            if (!isset($attributes[self::ATT_UPDATED_AT])) {
+                $attributes[self::ATT_UPDATED_AT] = $timestamps[self::ATT_UPDATED_AT];
+            }
+        }
+        
+        $collection = $this->getCollection();
+
+        $error = null;
+        try {
+            $result = $collection->insertOne($attributes);
+            $attributes['_id'] = $result->getInsertedId();
+            $this->map($attributes);
+            return $this;
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            throw $e;
+        } catch (\Error $e) {
+            error_log($e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Update document
+     *
+     * @param $attributes Array of attribute-value
+     * 
+     * @return mixed
+     */
+    public function update(array $attributes)
+    {
+        return $this->doUpdate($attributes);
+    }
+
+    /**
+     * Execute update on document
+     *
+     * @param array $attributes
+     * @param string $operation
+     * 
+     * @return mixed
+     */
+    private function doUpdate(array $attributes, string $operation = 'updateOne')
+    {
+
+        $queryBuilder = $this->getQueryBuilder();
+        
+        $query = $queryBuilder->getQueries();
+
+        $collection = $this->getCollection();
+
+        $timestamps = $this->getTimestamps();
+        unset($timestamps[self::ATT_CREATED_AT]);
+        $attributes = array_merge($attributes, $timestamps);
+        
+        try {
+            $collection->{$operation}($query, [
+                '$set' => $attributes
+            ]);
+
+            if ($operation === 'updateOne') {
+                $find = $this->first();
+            } else {
+                $find = true;
+            }
+
+            $queryBuilder->dehydrateConditions();
+
+            return $find;
+            
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            throw $e;
+        } catch (\Error $e) {
+            error_log($e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Update many documents
+     *
+     * @param array $attributes
+     * 
+     * @return $mixed
+     */
+    public function updateMany(array $attributes)
+    {
+        return $this->doUpdate($attributes, 'updateMany');
+    }
+
+    /**
+     * Delete document
+     *
+     * @return boolean
+     */
+    public function delete()
+    {
+        return $this->doDelete();
+    }
+
+    /**
+     * Delete document
+     *
+     * @return boolean
+     */
+    public function deleteMany()
+    {
+        return $this->doDelete('deleteMany');
+    }
+
+    /**
+     * Execute deletion on document
+     *
+     * @param string $operation
+     * 
+     * @return boolean
+     */
+    private function doDelete(string $operation = 'deleteOne')
+    {
+        $queryBuilder = $this->getQueryBuilder();
+        
+        $query = $queryBuilder->getQueries();
+
+        $collection = $this->getCollection();
+
+        try {
+            $collection->{$operation}($query);
+            return true;
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+        } catch (\Error $e) {
+            error_log($e->getMessage());
+        }
+
+        return false;
+    }
+
     /**
      * Load collections
      *
@@ -188,7 +380,7 @@ abstract class AbstractModel
             $fillables = $this->getFillable();
             if (count($fillables) > 0) {
                 foreach($fillables as $attribute){
-                    $attributes[$attribute] = $doc->{$attribute};
+                    $attributes[$attribute] = property_exists($doc, $attribute) ? $doc->{$attribute} : null;
                     unset($attribute);
                 }
             } else {
@@ -218,7 +410,7 @@ abstract class AbstractModel
      */
     public function getQueryBuilder(): \Crazymeeks\MongoDB\Model\QueryBuilder\Builder
     {
-        return $this->_queryBuilder;
+        return !$this->_queryBuilder ? new \Crazymeeks\MongoDB\Model\QueryBuilder\Builder($this) : $this->_queryBuilder;
     }
 
     /**
@@ -258,10 +450,20 @@ abstract class AbstractModel
         return isset($this->attributes[$name]) ? $this->attributes[$name] : null;
     }
 
+    /**
+     * Get loaded attributes
+     *
+     * @return array
+     */
+    private function getAttributes()
+    {
+        return $this->attributes;
+    }
+
     public function __call($name, $args)
     {
         $builder = new Builder($this);
-
+        
         if (method_exists($builder, $name)) {
             return $builder->{$name}(...$args);
         }
@@ -284,7 +486,12 @@ abstract class AbstractModel
 
         $collection = $database->{$this->getModelCollection()};
 
-        return $collection->{$name}($param1, $param2, $param3, $param4, $param5);
+        if (method_exists($collection, $name)) {
+            return $collection->{$name}($param1, $param2, $param3, $param4, $param5);
+        }
+
+        throw new \BadMethodCallException(sprintf("Calling undefined method %s() in %s.", $name, get_class($me)));
+        
     }
 
     public static function __callStatic($name, $args)
@@ -299,5 +506,13 @@ abstract class AbstractModel
         if (method_exists($me, $name)) {
             return $me->{$name}($args);
         }
+
+        if ($name === 'create') {
+            list($attributes) = $args;
+            $me->map($attributes);
+            return $me->save();
+        }
+
+        return $me->{$name}(...$args);
     }
 }
