@@ -112,7 +112,7 @@ $user->whereEq('firstname', 'John')
 *__whereGreaterOrEq(string $field, mixed $value)__* - $value could be int|string. Works great for int types.  
 *__whereLessThanOrEq(string $field, mixed $value)__* - $value could be int|string. Works great for int types.  
 *__whereLessThan(string $field, mixed $value)__* - $value could be int|string. Works great for int types.  
-*__first()__* - Returns object that extends \Crazymeeks\MongoDB\Model\AbstractModel. You may `count()` result of this function for counter checking.
+*__first()__* - Returns object that extends \Crazymeeks\MongoDB\Model\AbstractModel. You may `count()` result of this function for counter checking.  
 *__get()__* - Returns an array object that extends \Crazymeeks\MongoDB\Model\AbstractModel. You may `count()` result of this function for counter checking.  
 #
 ### # Query samples ###
