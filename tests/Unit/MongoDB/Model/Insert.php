@@ -21,14 +21,13 @@ trait Insert
 
     public function testCreateOneUsingCreateMethod()
     {
-        User::create([
+        $user = User::create([
             'name' => 'C',
             'email' => 'php@email.com'
         ]);
 
-        $find = $this->_user->whereEq('name', 'c')->first();
-        $this->assertSame('C', $find->name);
-        $this->assertInstanceOf(\Tests\User::class, $find);
+        $this->assertSame('C', $user->name);
+        $this->assertInstanceOf(\Tests\User::class, $user);
     }
 
     public function testInsertMany()
@@ -43,7 +42,7 @@ trait Insert
                 'email' => 'd@email.com',
             ],
         ]);
-        
+
         $this->assertInstanceOf(\MongoDB\InsertManyResult::class, $result);
     }
 }

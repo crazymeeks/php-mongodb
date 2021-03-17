@@ -2,11 +2,12 @@
 
 namespace Crazymeeks\MongoDB\Model;
 
+use Countable;
 use Exception;
 use Crazymeeks\MongoDB\Facades\Connection;
 use Crazymeeks\MongoDB\Model\QueryBuilder\Builder;
 
-abstract class AbstractModel
+abstract class AbstractModel implements Countable
 {
 
     const ATT_CREATED_AT = 'created_at';
@@ -390,6 +391,19 @@ abstract class AbstractModel
 
         return new static($attributes);
     }
+
+    /**
+     * @implement
+     */
+    public function count()
+    {
+        $attributes = $this->getAttributes();
+        if (count($attributes) == count($attributes, COUNT_RECURSIVE)) {
+            return count($attributes) >= 1 ? 1 : 0;
+        }
+        return count($this->getAttributes());
+    }
+
 
     /**
      * Set query builder

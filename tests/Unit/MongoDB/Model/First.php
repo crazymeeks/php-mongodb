@@ -85,6 +85,7 @@ trait First
 
         $this->assertSame('John', $result->name);
         $this->assertSame('test@email.com', $result->email);
+        $this->assertSame(1, count($result));
     }
 
     public function testAddWhereLessThanQuery()
