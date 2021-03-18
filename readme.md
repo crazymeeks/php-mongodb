@@ -140,6 +140,11 @@ $users = User::whereEq('email', 'john.doe@example.com')
                 ->get();
 
 ```  
+In addition,, you also use all methods available in `MongoDB\Client` and call it directly in your model.  
+```php
+$user = new User();
+$find = $user->findOne(['name' => 'John']);
+```  
 #
 ### # Laravel integration ###
 Register connection to app service provider.

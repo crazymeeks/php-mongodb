@@ -59,7 +59,7 @@ class ModelTest extends \Tests\TestCase
                   ->setDefaultDatabase('testing_mytestdb_crzymix')
                   ->connect();
         $user = new User();
-        // $user->deleteMany();
+        $user->deleteMany();
         parent::tearDown();
     }
     

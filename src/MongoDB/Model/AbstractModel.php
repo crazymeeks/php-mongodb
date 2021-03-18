@@ -136,7 +136,7 @@ abstract class AbstractModel implements Countable
     {
 
         $database = $this->getDefaultDatabase($this->getMongoClient());
-
+        
         $collection = $database->{$this->getModelCollection()};
 
         return $collection;
@@ -153,15 +153,21 @@ abstract class AbstractModel implements Countable
 
         $query = $queryBuilder->getQueries();
         $options = $queryBuilder->getQueryOptions();
-        
+
+        $options['batchSize'] = 10;
+
         $collection = $this->getCollection();
-
-        $collections = $collection->find($query, $options)->toArray();
-
+        
+        $collections = $collection->find($query, $options);
+        
         return $this->loadCollections($collections);
     }
 
-
+    /**
+     * Get timestamp fields of the model
+     *
+     * @return array
+     */
     protected function getTimestamps()
     {
         return [
@@ -345,14 +351,15 @@ abstract class AbstractModel implements Countable
     /**
      * Load collections
      *
-     * @param array $collections
+     * @param \MongoDB\Driver\Cursor $cursor
      * 
      * @return array[]
      */
-    private function loadCollections(array $collections)
+    private function loadCollections(\MongoDB\Driver\Cursor $cursor)
     {
+
         $models = [];
-        foreach($collections as $collection){
+        foreach($cursor as $collection){
             $attribute_value = [];
             foreach($collection as $field => $value){
                 $attribute_value[$field] = $value;
@@ -361,7 +368,7 @@ abstract class AbstractModel implements Countable
             $models[] = new static($attribute_value);
             unset($collection);
         }
-
+        
         return $models;
         
     }
