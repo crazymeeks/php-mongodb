@@ -140,7 +140,7 @@ $users = User::whereEq('email', 'john.doe@example.com')
                 ->get();
 
 ```  
-In addition,, you also use all methods available in `MongoDB\Client` and call it directly in your model.  
+__In addition, you may also use all methods available in `MongoDB\Client` and call it directly in your model.__  
 ```php
 $user = new User();
 $find = $user->findOne(['name' => 'John']);
