@@ -104,16 +104,16 @@ $user->whereEq('firstname', 'John')
 ### # Finding or Querying data from collection. ##
 ### Current methods available ###
 
-*whereEq(string $field, string $value)* - where equal query and case-insentive.  
-*__whereNotEq(string $field, string $value)* - where not equal query and case-insensitive.  
-*whereIn(string $field, array($value1, $value2, ...)* - Case-insensitive.  
-*whereNotIn(string $field, array($value1, array $value2, ...)* - Case-insensitive.  
-*whereGreater(string $field, mixed $value)*  $value could be int|string. Works great for int types.  
-*whereGreaterOrEq(string $field, mixed $value)* - $value could be int|string. Works great for int types.  
-*whereLessThanOrEq(string $field, mixed $value)* - $value could be int|string. Works great for int types.  
-*whereLessThan(string $field, mixed $value)* - $value could be int|string. Works great for int types.  
-*first()* - Returns object that extends \Crazymeeks\MongoDB\Model\AbstractModel. You may `count()` result of this function for counter checking.  
-*get()* - Returns an array object that extends \Crazymeeks\MongoDB\Model\AbstractModel. You may `count()` result of this function for counter checking.  
+__whereEq(string $field, string $value)__ - where equal query and case-insentive.  
+__whereNotEq(string $field, string $value)__ - where not equal query and case-insensitive.  
+__whereIn(string $field, array($value1, $value2, ...)__ - Case-insensitive.  
+__whereNotIn(string $field, array($value1, array $value2, ...)__ - Case-insensitive.  
+__whereGreater(string $field, mixed $value)__  $value could be int|string. Works great for int types.  
+__whereGreaterOrEq(string $field, mixed $value)__ - $value could be int|string. Works great for int types.  
+__whereLessThanOrEq(string $field, mixed $value)__ - $value could be int|string. Works great for int types.  
+__whereLessThan(string $field, mixed $value)__ - $value could be int|string. Works great for int types.  
+__first()__ - Returns object that extends \Crazymeeks\MongoDB\Model\AbstractModel. You may `count()` result of this function for counter checking.  
+__get()__ - Returns an array object that extends \Crazymeeks\MongoDB\Model\AbstractModel. You may `count()` result of this function for counter checking.  
 #
 ### # Query samples ###
 ```php
