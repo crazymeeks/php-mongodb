@@ -29,8 +29,7 @@ class ModelTest extends \Tests\TestCase
     public function setUp(): void
     {
         parent::setUp();
-        
-        Connection::disconnect();
+    
         Connection::setUpConnection('192.168.1.5', ['username' => 'root', 'password' => 'root'], [])
                   ->setDefaultDatabase('testing_mytestdb_crzymix')
                   ->connect();
@@ -54,10 +53,6 @@ class ModelTest extends \Tests\TestCase
 
     public function tearDown(): void
     {
-        Connection::disconnect();
-        Connection::setUpConnection('192.168.1.5', ['username' => 'root', 'password' => 'root'], [])
-                  ->setDefaultDatabase('testing_mytestdb_crzymix')
-                  ->connect();
         $user = new User();
         $user->deleteMany();
         parent::tearDown();

@@ -21,6 +21,6 @@ trait Delete
                       ->deleteMany();
         $this->assertTrue($true);
         $result = $this->_user->first();
-        print_r($result);exit;
+        
     }
 }

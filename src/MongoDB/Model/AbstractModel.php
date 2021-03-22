@@ -357,7 +357,7 @@ abstract class AbstractModel implements Countable
      */
     private function loadCollections(\MongoDB\Driver\Cursor $cursor)
     {
-
+        
         $models = [];
         foreach($cursor as $collection){
             $attribute_value = [];

@@ -107,7 +107,7 @@ class Connection
     {
 
         if (self::$client) {
-            return self::$client;
+            return new \Crazymeeks\MongoDB\Connection\Resolver\ResolvedConnection();
         }
         if ($name === 'setUpConnection') {
             if (!self::$client) {
