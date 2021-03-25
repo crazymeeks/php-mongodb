@@ -4,7 +4,8 @@ php:
  - '7.2'
  - '7.3'
 before_script:
- - apt install php7.1-mongodb php7.2-mongodb php7.3-mongodb -y
+ - sudo apt update -y
+ - sudo apt install php7.1-mongodb php7.2-mongodb php7.3-mongodb -y
  - composer install
  - composer dump-autoload --optimize
 # safelist
