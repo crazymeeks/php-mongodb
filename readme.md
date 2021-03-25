@@ -140,7 +140,9 @@ $users = User::whereEq('email', 'john.doe@example.com')
                 ->get();
 
 ```  
-__In addition, you may also use all methods available in `MongoDB\Client` and call it directly in your model.__  
+#
+## #Direct Usage
+__In addition, you may also use all methods available in [MongoDB\Client](https://docs.mongodb.com/php-library/current/tutorial/) and call it directly in your model.__  
 ```php
 $user = new User();
 $find = $user->findOne(['name' => 'John']);
@@ -197,4 +199,6 @@ class User extends AbstractModel
 
 }
 ```  
-__Important:__ Laravel's relationship is not yet supported.
+__Important:__ Laravel's relationship is not yet supported.  
+#
+Author: Jeff Claud

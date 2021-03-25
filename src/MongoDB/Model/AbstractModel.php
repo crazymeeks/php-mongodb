@@ -217,7 +217,6 @@ abstract class AbstractModel implements Countable
         
         $collection = $this->getCollection();
 
-        $error = null;
         try {
             $result = $collection->insertOne($attributes);
             $attributes['_id'] = $result->getInsertedId();
@@ -294,7 +293,7 @@ abstract class AbstractModel implements Countable
      *
      * @param array $attributes
      * 
-     * @return $mixed
+     * @return mixed
      */
     public function updateMany(array $attributes)
     {
@@ -353,7 +352,7 @@ abstract class AbstractModel implements Countable
      *
      * @param \MongoDB\Driver\Cursor $cursor
      * 
-     * @return array[]
+     * @return \Crazymeeks\MongoDB\Model\AbstractModel[]
      */
     private function loadCollections(\MongoDB\Driver\Cursor $cursor)
     {
@@ -378,13 +377,13 @@ abstract class AbstractModel implements Countable
      *
      * @param \MongoDB\Model\BSONDocument|null $doc
      * 
-     * @return \MongoDB\Model\BSONDocument|$this
+     * @return static
      */
     private function loadAttributeValue(\MongoDB\Model\BSONDocument $doc = null)
     {
         $attributes = [];
-
-        if ($doc) {
+        
+        if ($doc instanceof \MongoDB\Model\BSONDocument) {
             $fillables = $this->getFillable();
             if (count($fillables) > 0) {
                 foreach($fillables as $attribute){
@@ -394,6 +393,7 @@ abstract class AbstractModel implements Countable
             } else {
                 return $doc;
             }
+
         }
 
         return new static($attributes);
@@ -511,7 +511,7 @@ abstract class AbstractModel implements Countable
             return $collection->{$name}($param1, $param2, $param3, $param4, $param5);
         }
 
-        throw new \BadMethodCallException(sprintf("Calling undefined method %s() in %s.", $name, get_class($me)));
+        throw new \BadMethodCallException(sprintf("Calling undefined method %s() in %s.", $name, get_class($this)));
         
     }
 

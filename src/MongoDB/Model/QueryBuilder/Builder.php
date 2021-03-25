@@ -145,7 +145,7 @@ class Builder
                 ];
                 unset($values);
             }
-            unset($q);
+            unset($ors);
         }
 
         if (count($orWhere) > 0) {
