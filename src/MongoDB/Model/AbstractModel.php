@@ -111,7 +111,7 @@ abstract class AbstractModel implements Countable
     /**
      * Get one record in MongoDB
      *
-     * @return array
+     * @return mixed
      */
     public function first()
     {
