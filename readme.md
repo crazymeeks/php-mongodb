@@ -1,4 +1,10 @@
-## php-mongodb
+<h1 align="center">
+	php-mongodb
+	<br>
+	<img src="https://scrutinizer-ci.com/g/crazymeeks/php-mongodb/badges/quality-score.png?b=master">
+	<img src="https://scrutinizer-ci.com/g/crazymeeks/php-mongodb/badges/build.png?b=master">
+</h1>
+
 #
 php-mongodb is a PHP library that wraps `MongoDB\Client` library and provides a clean api for interacting with MongoDB database.
 #
