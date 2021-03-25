@@ -377,7 +377,7 @@ abstract class AbstractModel implements Countable
      *
      * @param \MongoDB\Model\BSONDocument|null $doc
      * 
-     * @return static
+     * @return mixed
      */
     private function loadAttributeValue(\MongoDB\Model\BSONDocument $doc = null)
     {
