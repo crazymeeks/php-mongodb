@@ -21,7 +21,7 @@ trait Update
     public function testUpdateManyDocuments()
     {
         $true = User::whereEq('email', 'test@email.com')
-                      ->updateMany([
+                      ->bulkUpdate([
                           'name' => 'Jhon'
                       ]);
         $this->assertTrue($true);

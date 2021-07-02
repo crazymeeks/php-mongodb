@@ -18,7 +18,7 @@ trait Delete
     public function testDeleteManyDocuments()
     {
         $true = User::whereEq('email', 'test@email.com')
-                      ->deleteMany();
+                      ->bulkDelete();
         $this->assertTrue($true);
         $result = $this->_user->first();
         

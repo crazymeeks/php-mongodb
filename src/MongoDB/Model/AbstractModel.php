@@ -295,7 +295,7 @@ abstract class AbstractModel implements Countable
      * 
      * @return mixed
      */
-    public function updateMany(array $attributes)
+    public function bulkUpdate(array $attributes)
     {
         return $this->doUpdate($attributes, 'updateMany');
     }
@@ -315,7 +315,7 @@ abstract class AbstractModel implements Countable
      *
      * @return boolean
      */
-    public function deleteMany()
+    public function bulkDelete()
     {
         return $this->doDelete('deleteMany');
     }
