@@ -3,9 +3,10 @@
 namespace Tests\Unit\MongoDB\Facades;
 
 use Crazymeeks\MongoDB\Facades\Connection;
-use Crazymeeks\MongoDB\Connection\Exceptions\ConnectionException;
+use Tests\TestCase as AbstractTestCase;
+use Crazymeeks\MongoDB\Connection\Resolver\Exceptions\ConnectionException;
 
-class ConnectionTest extends \Tests\TestCase
+class ConnectionTest extends AbstractTestCase
 {
     public function testCreateConnect()
     {
@@ -13,7 +14,7 @@ class ConnectionTest extends \Tests\TestCase
 
         Connection::disconnect();
 
-        Connection::setUpConnection('192.168.1.5', ['username' => 'root', 'password' => 'root'], [])
+        Connection::setUpConnection('172.28.5.1', ['username' => 'root', 'password' => 'root'], [])
                   ->setDefaultDatabase('testing_mytestdb_crzymix')
                   ->connect();
         
@@ -32,8 +33,6 @@ class ConnectionTest extends \Tests\TestCase
     {
         $this->expectException(ConnectionException::class);
         Connection::disconnect();
-        Connection::setUpConnection('192.168.1.55', ['username' => 'root', 'password' => 'root'], [])
-                  ->setDefaultDatabase('testing_mytestdb_crzymix')
-                  ->connect();
+        Connection::getInstance();
     }
 }

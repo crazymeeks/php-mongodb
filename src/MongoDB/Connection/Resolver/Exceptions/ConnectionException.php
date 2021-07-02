@@ -1,6 +1,6 @@
 <?php
 
-namespace Crazymeeks\MongoDB\Connection\Exceptions;
+namespace Crazymeeks\MongoDB\Connection\Resolver\Exceptions;
 
 class ConnectionException extends \Exception
 {

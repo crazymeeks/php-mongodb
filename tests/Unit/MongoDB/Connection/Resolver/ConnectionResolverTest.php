@@ -2,9 +2,10 @@
 
 namespace Tests\Unit\MongoDB\Connection\Resolver;
 
+use Tests\TestCase as AbstractTestCase;
 use Crazymeeks\MongoDB\Connection\Resolver\ConnectionResolver;
 
-class ConnectionResolverTest extends \Tests\TestCase
+class ConnectionResolverTest extends AbstractTestCase
 {
 
     private $_resolver;
@@ -17,7 +18,7 @@ class ConnectionResolverTest extends \Tests\TestCase
 
     public function testInitiateConnection()
     {
-        $client = $this->_resolver->setServerAddress("192.168.1.5")
+        $client = $this->_resolver->setServerAddress("172.28.5.1")
                         ->setServerOptions(['username' => 'root', 'password' => 'root'])
                         ->setDriverOptions()
                         ->resolve();

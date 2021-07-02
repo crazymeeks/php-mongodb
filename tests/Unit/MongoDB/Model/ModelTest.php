@@ -30,7 +30,7 @@ class ModelTest extends \Tests\TestCase
     {
         parent::setUp();
     
-        Connection::setUpConnection('192.168.1.5', ['username' => 'root', 'password' => 'root'], [])
+        Connection::setUpConnection('172.28.5.1', ['username' => 'root', 'password' => 'root'], [])
                   ->setDefaultDatabase('testing_mytestdb_crzymix')
                   ->connect();
 

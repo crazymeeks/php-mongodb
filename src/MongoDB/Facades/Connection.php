@@ -3,7 +3,7 @@
 namespace Crazymeeks\MongoDB\Facades;
 
 use Crazymeeks\MongoDB\Connection\Resolver\ConnectionResolver;
-use Crazymeeks\MongoDB\Connection\Exceptions\ConnectionException;
+use Crazymeeks\MongoDB\Connection\Resolver\Exceptions\ConnectionException;
 
 class Connection
 {
