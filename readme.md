@@ -89,7 +89,7 @@ $user->whereEq('firstname', 'John')
 ```php
 $user = new User();
 $user->whereEq('firstname', 'John')
-     ->updateMany([
+     ->bulkUpdate([
          'firstname' => 'Jane',
      ]);
 ```  
@@ -104,7 +104,7 @@ $user->whereEq('firstname', 'John')
 ```php
 $user = new User();
 $user->whereEq('firstname', 'John')
-     ->deleteMany();
+     ->bulkDelete();
 ```
 #
 ### # Finding or Querying data from collection. ##
