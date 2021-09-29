@@ -47,8 +47,9 @@ abstract class AbstractModel implements Countable
     protected $_queryBuilder = null;
 
     protected function getFillable()
-    {
-        return $this->fillable;
+    {   
+        $fillables = ['_id'];
+        return array_merge($fillables, $this->fillable);
     }
 
 
@@ -385,9 +386,15 @@ abstract class AbstractModel implements Countable
         
         if ($doc instanceof \MongoDB\Model\BSONDocument) {
             $fillables = $this->getFillable();
+            
             if (count($fillables) > 0) {
                 foreach($fillables as $attribute){
-                    $attributes[$attribute] = property_exists($doc, $attribute) ? $doc->{$attribute} : null;
+                    if ($attribute === '_id') {
+                        $attributes[$attribute] = $doc->_id;
+                    } else {
+                        $attributes[$attribute] = property_exists($doc, $attribute) ? $doc->{$attribute} : null;
+                    }
+
                     unset($attribute);
                 }
             } else {
